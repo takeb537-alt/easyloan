@@ -1,0 +1,43 @@
+name: Flutter Build APK
+
+on:
+  push:
+    branches: [ "main", "master" ] # Aapki branch ka naam check karein
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Java Setup (Fintech apps ke liye Java 17 best hai)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 2. Flutter Setup (Strictly 3.22.0 as requested)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      # 3. Dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 4. Build APK (Release mode)
+      - name: Build APK
+        run: flutter build apk --release
+
+      # 5. Upload APK to GitHub (Taki aap phone pe download kar sakein)
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: easy-loan-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
